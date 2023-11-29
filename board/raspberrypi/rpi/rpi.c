@@ -429,6 +429,7 @@ static void get_board_revision(void)
 	int ret;
 	const struct rpi_model *models;
 	uint32_t models_count;
+	const char *fdt_model;
 
 	BCM2835_MBOX_INIT_HDR(msg);
 	BCM2835_MBOX_INIT_TAG(&msg->get_board_rev, GET_BOARD_REV);
@@ -437,6 +438,11 @@ static void get_board_revision(void)
 	if (ret) {
 		printf("bcm2835: Could not query board revision\n");
 		/* Ignore error; not critical */
+		if (fdt_magic(fw_dtb_pointer) == FDT_MAGIC) {
+			fdt_model = fdt_getprop((void *)fw_dtb_pointer, 0, "model", NULL);
+			if (fdt_model != 0)
+				printf("FW FDT model : %s\n", fdt_model);
+		}
 		return;
 	}
 
